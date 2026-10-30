@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b12">
+<title>AG AI TRADER</title>
+<style>
+:root{color-scheme:dark;--bg:#080b12;--panel:#111827;--panel2:#0d1420;--line:#253249;--muted:#94a3b8;--gold:#e8bd65;--green:#39d98a;--red:#ff6577;--blue:#79aaff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1c2b45 0,transparent 48%),var(--bg);color:#f4f6fb;font-family:Inter,system-ui,Arial,sans-serif}
+.app{max-width:1120px;margin:auto;padding:22px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}
+.brand{font-weight:950;letter-spacing:.08em;font-size:20px}.brand span{color:var(--gold)}.tag{font-size:10px;letter-spacing:.2em;color:var(--muted);margin-top:4px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:11px;color:var(--muted)}.pill b{color:var(--gold)}
+h1{font-size:clamp(30px,6vw,48px);letter-spacing:-.045em;margin:28px 0 6px}.lead{color:var(--muted);margin:0 0 24px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.card{background:linear-gradient(145deg,#151f30,#0e1521);border:1px solid var(--line);border-radius:17px;padding:17px;min-width:0}.metric small,.muted{color:var(--muted);font-size:12px}.metric strong{display:block;font-size:25px;margin-top:9px;overflow-wrap:anywhere}.green{color:var(--green)}.gold{color:var(--gold)}.red{color:var(--red)}
+.section{margin-top:20px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 12px}.section-head h2{font-size:16px;margin:0}.two{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}input,select{width:100%;background:#080e18;border:1px solid #2b3a52;border-radius:10px;color:#fff;padding:12px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}button{border:0;border-radius:11px;padding:12px 16px;font-weight:850;cursor:pointer;font-size:13px}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--gold);color:#1b1407}.secondary{background:#24334b;color:#e9f0ff;border:1px solid #344763}.buy{background:#123d30;color:#78efb4;border:1px solid #23684e}.sell{background:#451e2a;color:#ff9aa7;border:1px solid #793747}.danger{background:#3d1e29;color:#ff9aa7;border:1px solid #733747}.switch{display:flex;align-items:center;gap:10px;margin-top:15px;color:#dce5f4;font-size:13px}.switch input{width:18px;height:18px;accent-color:#d6ad59}
+.signal{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;border:1px solid var(--line);background:#0b1320;border-radius:12px;margin-top:12px}.signal strong{font-size:14px}.signal small{display:block;color:var(--muted);margin-top:4px}.status{font-size:11px;color:var(--gold);border:1px solid #5d4a2b;border-radius:99px;padding:6px 9px;white-space:nowrap}
+.note{border-left:3px solid var(--gold);background:#171a20;padding:12px 14px;color:#c5cedd;font-size:12px;line-height:1.55;border-radius:0 10px 10px 0;margin-top:15px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:13px}
+footer{margin-top:24px;color:#778399;font-size:11px;line-height:1.6;text-align:center}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}}@media(max-width:380px){.row{grid-template-columns:1fr}.metric strong{font-size:21px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top">
+ <div><div class="brand"><span>AG</span> AI TRADER</div><div class="tag">INTELLIGENT TRADING TERMINAL</div></div>
+ <div class="pill">MODE: <b id="modeLabel">DEMO PREVIEW</b></div>
+</header>
+<h1>Trade with a plan.</h1>
+<p class="lead">AI-assisted trading dashboard concept for MetaTrader 5. Configure risk, review signals and monitor execution.</p>
+
+<div class="grid">
+ <div class="card metric"><small>ACCOUNT BALANCE</small><strong id="balance">—</strong></div>
+ <div class="card metric"><small>EQUITY</small><strong id="equity">—</strong></div>
+ <div class="card metric"><small>OPEN POSITIONS</small><strong id="positions">0</strong></div>
+ <div class="card metric"><small>CONNECTION</small><strong id="connection" class="gold" style="font-size:17px">Not connected</strong></div>
+</div>
+
+<div class="two section">
+ <section class="card">
+  <div class="section-head"><h2>MT5 connection</h2><span class="status" id="mtStatus">BACKEND REQUIRED</span></div>
+  <p class="muted">Connect through your own secure Python service. This browser page does not collect or store your MT5 password.</p>
+  <label for="apiUrl">Your secure backend URL</label>
+  <input id="apiUrl" type="url" placeholder="https://your-secure-server.example">
+  <div class="row">
+   <div><label for="accountType">Account type</label><select id="accountType"><option>Demo</option><option>Live</option></select></div>
+   <div><label for="terminal">Platform</label><select id="terminal"><option>MetaTrader 5</option></select></div>
+  </div>
+  <div class="btnrow"><button class="primary" id="connectBtn">CONNECT MT5</button><button class="secondary" id="disconnectBtn">DISCONNECT</button></div>
+  <div class="note">Connection endpoint expected: <b>GET /api/status</b>. Your backend should authenticate requests, connect to MT5, and return account status. Use HTTPS and keep credentials server-side.</div>
+ </section>
+
+ <section class="card">
+  <div class="section-head"><h2>AI signal engine</h2><span class="status">ASSISTED</span></div>
+  <label for="symbol">Trading symbol</label><select id="symbol"><option>EURUSD</option><option>GBPUSD</option><option>USDJPY</option><option>XAUUSD</option><option>BTCUSD</option></select>
+  <div class="row">
+   <div><label for="timeframe">Timeframe</label><select id="timeframe"><option>M5</option><option>M15</option><option>H1</option><option>H4</option><option>D1</option></select></div>
+   <div><label for="risk">Risk per trade (%)</label><input id="risk" type="number" min="0.1" max="1" step="0.1" value="0.5"></div>
+  </div>
+  <div class="btnrow"><button class="secondary" id="analyseBtn">ANALYSE MARKET</button></div>
+  <div class="signal"><div><strong id="signalTitle">Waiting for market data</strong><small id="signalDetail">No live signal generated</small></div><span class="status" id="signalBadge">WAIT</span></div>
+  <p class="muted">Signals are not guarantees. Review every setup before enabling execution.</p>
+ </section>
+</div>
+
+<section class="card section">
+ <div class="section-head"><h2>Auto-trading controls</h2><span class="status">GUARDED</span></div>
+ <div class="row">
+  <div><label for="lot">Lot size</label><input id="lot" type="number" min="0.01" max="0.1" step="0.01" value="0.01"></div>
+  <div><label for="maxTrades">Maximum open trades</label><input id="maxTrades" type="number" min="1" max="3" value="1"></div>
+  <div><label for="sl">Stop loss (points)</label><input id="sl" type="number" min="1" value="200"></div>
+  <div><label for="tp">Take profit (points)</label><input id="tp" type="number" min="1" value="400"></div>
+ </div>
+ <label class="switch"><input id="autoToggle" type="checkbox"> Enable automatic execution (requires connected backend)</label>
+ <div class="btnrow">
+  <button class="buy" id="buyBtn" disabled>BUY</button><button class="sell" id="sellBtn" disabled>SELL</button><button class="danger" id="closeBtn" disabled>CLOSE ALL</button>
+ </div>
+ <div class="note">Safety defaults: demo account, 0.5% risk, 0.01 lot, one open trade. Auto-trading stays disabled until your backend is connected. Live trading can lose money, including the full amount deposited.</div>
+</section>
+
+<section class="card section">
+ <div class="section-head"><h2>Trade activity</h2><span class="muted">From connected backend</span></div>
+ <div style="overflow-x:auto"><table><thead><tr><th>TIME</th><th>SYMBOL</th><th>TYPE</th><th>VOLUME</th><th>RESULT</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">No trades loaded. Connect your backend to view trade history.</td></tr></tbody></table></div>
+</section>
+<footer>AG AI TRADER · Prototype interface only. Not financial advice. No trades are placed by this standalone HTML file. A real MT5 integration requires a secure backend, tested execution logic, broker compatibility and server-side risk checks.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let connected = false, apiBase = '';
+function setConnected(value, account) {
+ connected = value;
+ $('connection').textContent = value ? 'Connected' : 'Not connected';
+ $('connection').className = value ? 'green' : 'gold';
+ $('mtStatus').textContent = value ? 'CONNECTED' : 'NOT CONNECTED';
+ $('mtStatus').style.color = value ? 'var(--green)' : 'var(--gold)';
+ $('buyBtn').disabled = !value; $('sellBtn').disabled = !value; $('closeBtn').disabled = !value;
+ $('modeLabel').textContent = value ? 'MT5 CONNECTED' : 'DEMO PREVIEW';
+ if (account) {
+  $('balance').textContent = account.balance ?? '—';
+  $('equity').textContent = account.equity ?? '—';
+  $('positions').textContent = account.positions ?? '0';
+ }
+}
+async function api(path, options={}) {
+ if (!apiBase) throw new Error('Enter your backend URL first.');
+ const response = await fetch(apiBase.replace(/\/$/,'') + path, {
+  ...options, headers:{'Content-Type':'application/json', ...(options.headers||{})}
+ });
+ if (!response.ok) throw new Error('Backend returned HTTP ' + response.status);
+ return response.json();
+}
+$('connectBtn').addEventListener('click', async () => {
+ apiBase = $('apiUrl').value.trim();
+ if (!/^https:\/\//i.test(apiBase)) { alert('Enter your secure HTTPS backend URL. Do not enter MT5 login credentials here.'); return; }
+ $('connectBtn').disabled = true;
+ try {
+  const data = await api('/api/status');
+  if (!data.connected) throw new Error(data.message || 'MT5 terminal is not connected.');
+  setConnected(true, data.account || {});
+  alert('MT5 backend connected.');
+ } catch(e) { setConnected(false); alert('Could not connect: ' + e.message); }
+ finally { $('connectBtn').disabled = false; }
+});
+$('disconnectBtn').addEventListener('click', () => setConnected(false));
+$('analyseBtn').addEventListener('click', async () => {
+ if (!connected) { alert('Connect your MT5 backend first.'); return; }
+ try {
+  const d = await api('/api/analyse?symbol='+encodeURIComponent($('symbol').value)+'&timeframe='+encodeURIComponent($('timeframe').value));
+  $('signalTitle').textContent = d.signal || 'No clear setup';
+  $('signalDetail').textContent = d.reason || 'Review the market conditions.';
+  $('signalBadge').textContent = d.signal || 'WAIT';
+ } catch(e) { alert('Analysis unavailable: '+e.message); }
+});
+async function trade(action) {
+ if (!connected) return;
+ const payload = {
+  action, symbol:$('symbol').value, volume:Number($('lot').value),
+  stop_loss_points:Number($('sl').value), take_profit_points:Number($('tp').value),
+  risk_percent:Number($('risk').value), max_open_trades:Number($('maxTrades').value),
+  account_type:$('accountType').value
+ };
+ if (payload.volume < 0.01 || payload.volume > 0.1 || payload.risk_percent <= 0 || payload.risk_percent > 1) {
+  alert('Safety limit: volume 0.01–0.1 lots and risk must be above 0% and no more than 1%.'); return;
+ }
+ if (!confirm('Send '+action+' request to your MT5 backend for '+payload.symbol+'?')) return;
+ try { const d=await api('/api/trade',{method:'POST',body:JSON.stringify(payload)}); alert(d.message || 'Request received by backend.'); }
+ catch(e) { alert('Trade request failed: '+e.message); }
+}
+$('buyBtn').addEventListener('click',()=>trade('BUY'));
+$('sellBtn').addEventListener('click',()=>trade('SELL'));
+$('closeBtn').addEventListener('click',async()=>{
+ if (!connected || !confirm('Request closing all open positions?')) return;
+ try { const d=await api('/api/positions/close-all',{method:'POST',body:'{}'}); alert(d.message || 'Close request sent.'); }
+ catch(e){alert('Close request failed: '+e.message);}
+});
+$('autoToggle').addEventListener('change', async e=>{
+ if (!connected) { e.target.checked=false; alert('Connect the backend first.'); return; }
+ if (e.target.checked && !confirm('Enable backend auto-execution? Start with a demo account only.')) {e.target.checked=false;return;}
+ try { await api('/api/auto-trading',{method:'POST',body:JSON.stringify({enabled:e.target.checked, symbol:$('symbol').value, risk_percent:Number($('risk').value)})}); }
+ catch(err){e.target.checked=false;alert('Could not update auto-trading: '+err.message);}
+});
+setConnected(false);
+</script>
+</body>
+</html>
